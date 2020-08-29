@@ -32,13 +32,15 @@ fun NetworkLesson.asDomainModel() : Lesson {
 /**
  * Convert network to database objects. Encapsulate database from network
  */
-fun NetworkLesson.asDatabaseModel() : DatabaseLesson {
-    return DatabaseLesson(
-        id,
-        createdAt,
-        code,
-        heading,
-        startTime,
-        endTime
-    )
+fun List<NetworkLesson>.asDatabaseModel() : Array<DatabaseLesson> {
+    return map {
+        DatabaseLesson(
+            id = it.id,
+            createdAt = it.createdAt,
+            code = it.code,
+            heading = it.heading,
+            startTime = it.startTime,
+            endTime = it.endTime
+        )
+    }.toTypedArray()
 }
