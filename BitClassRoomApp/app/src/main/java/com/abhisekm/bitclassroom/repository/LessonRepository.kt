@@ -1,5 +1,6 @@
 package com.abhisekm.bitclassroom.repository
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import com.abhisekm.bitclassroom.database.LessonsDatabase
@@ -24,8 +25,8 @@ class LessonRepository (private val database: LessonsDatabase){
      */
     suspend fun refreshVideos() {
         withContext(Dispatchers.IO) {
-            val lessons = Network.service.getLessons().await()
-            database.lessonDao.insertAll(*lessons.asDatabaseModel())
+                val lessons = Network.service.getLessons().await()
+                database.lessonDao.insertAll(*lessons.asDatabaseModel())
         }
     }
 }
