@@ -10,7 +10,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 
-enum class ApiStatus { LOADING, DONE, ERROR }
 
 class ClassroomViewModel(val lessonId: String, application: Application) :
     AndroidViewModel(application) {

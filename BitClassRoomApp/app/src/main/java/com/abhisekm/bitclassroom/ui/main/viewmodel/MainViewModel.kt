@@ -12,8 +12,6 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import java.io.IOException
 
-enum class ApiStatus { LOADING, DONE, ERROR }
-
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val viewModelJob = SupervisorJob()
     private val viewModelScope = CoroutineScope(viewModelJob + Dispatchers.Main)
