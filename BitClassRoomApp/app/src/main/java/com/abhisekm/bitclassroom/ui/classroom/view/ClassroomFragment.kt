@@ -12,6 +12,7 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.abhisekm.bitclassroom.R
@@ -21,6 +22,9 @@ import io.agora.rtc.IRtcEngineEventHandler
 import io.agora.rtc.RtcEngine
 import io.agora.rtc.video.VideoCanvas
 import io.agora.rtc.video.VideoEncoderConfiguration
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class ClassroomFragment : Fragment() {
     private val viewModel: ClassroomViewModel by lazy {
@@ -82,7 +86,7 @@ class ClassroomFragment : Fragment() {
          *     USER_OFFLINE_BECOME_AUDIENCE(2): (Live broadcast only.) The client role switched from the host to the audience.
          */
         override fun onUserOffline(uid: Int, reason: Int) {
-            onRemoteUserLeft()
+            onRemoteUserLeft(uid)
         }
 
         /**
@@ -108,6 +112,49 @@ class ClassroomFragment : Fragment() {
         binding.viewModel = viewModel
         binding.lifecycleOwner = this
 
+        viewModel.run {
+            eventEndCall.observe(viewLifecycleOwner, {
+                it.getContentIfNotHandled()?.let { clicked ->
+                    if (clicked){
+                        findNavController().navigate(
+                            ClassroomFragmentDirections.actionClassroomFragmentToMainFragment()
+                        )
+                    }
+                }
+            })
+
+            eventLocalAudioMuted.observe(viewLifecycleOwner, {
+                it.getContentIfNotHandled()?.let { muted ->
+                    mRtcEngine!!.muteLocalAudioStream(muted)
+                }
+            })
+
+            eventLocalVideoMuted.observe(viewLifecycleOwner, {
+                it.getContentIfNotHandled()?.let { muted ->
+                    onLocalVideoMuteClicked(muted)
+                }
+            })
+
+            eventRemoteAudioMuted.observe(viewLifecycleOwner, {
+                it.getContentIfNotHandled()?.let { muted ->
+                    mRtcEngine!!.muteAllRemoteAudioStreams(muted)
+                }
+            })
+
+            eventRemoteVideoMuted.observe(viewLifecycleOwner, {
+                it.getContentIfNotHandled()?.let { muted ->
+                    mRtcEngine!!.muteAllRemoteVideoStreams(muted)
+                }
+            })
+
+
+            eventSwitchCamera.observe(viewLifecycleOwner, {
+                it.getContentIfNotHandled()?.let { clicked ->
+                    if (clicked)  mRtcEngine!!.switchCamera()
+                }
+            })
+        }
+
         return binding.root
     }
 
@@ -131,8 +178,6 @@ class ClassroomFragment : Fragment() {
     }
 
     private fun checkSelfPermission(permission: String, requestCode: Int): Boolean {
-        Log.i(LOG_TAG, "checkSelfPermission $permission $requestCode")
-//        return this.context?.let<Context, Boolean> {
         if (ContextCompat.checkSelfPermission(
                 requireContext(),
                 permission
@@ -142,7 +187,6 @@ class ClassroomFragment : Fragment() {
             return false
         }
         return true
-//        } ?: false
     }
 
     override fun onRequestPermissionsResult(
@@ -150,14 +194,12 @@ class ClassroomFragment : Fragment() {
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
-        Log.i(LOG_TAG, "onRequestPermissionsResult " + grantResults[0] + " " + requestCode)
-
         when (requestCode) {
             PERMISSION_REQ_ID_RECORD_AUDIO -> {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     checkSelfPermission(Manifest.permission.CAMERA, PERMISSION_REQ_ID_CAMERA)
                 } else {
-                    showLongToast("No permission for " + Manifest.permission.RECORD_AUDIO)
+                    showLongToast("No permission for ${Manifest.permission.RECORD_AUDIO}")
                 }
             }
             PERMISSION_REQ_ID_CAMERA -> {
@@ -179,17 +221,21 @@ class ClassroomFragment : Fragment() {
     override fun onDestroy() {
         super.onDestroy()
 
-        leaveChannel()
-        /*
-          Destroys the RtcEngine instance and releases all resources used by the Agora SDK.
-          This method is useful for apps that occasionally make voice or video calls,
-          to free up resources for other operations when not making calls.
-         */
-        RtcEngine.destroy()
-        mRtcEngine = null
+        CoroutineScope(Dispatchers.IO).launch {
+            leaveChannel()
+            /*
+              Destroys the RtcEngine instance and releases all resources used by the Agora SDK.
+              This method is useful for apps that occasionally make voice or video calls,
+              to free up resources for other operations when not making calls.
+             */
+            RtcEngine.destroy()
+            mRtcEngine = null
+        }
+
     }
 
-    fun onLocalVideoMuteClicked(localVideoMuted: Boolean) {
+
+    private fun onLocalVideoMuteClicked(localVideoMuted: Boolean) {
         // Stops/Resumes sending the local video stream.
         mRtcEngine!!.muteLocalVideoStream(localVideoMuted)
 
@@ -199,21 +245,6 @@ class ClassroomFragment : Fragment() {
         surfaceView.visibility = if (localVideoMuted) View.GONE else View.VISIBLE
     }
 
-    fun onLocalAudioMuteClicked(localAudioMuted: Boolean) {
-        // Stops/Resumes sending the local audio stream.
-        mRtcEngine!!.muteLocalAudioStream(localAudioMuted)
-    }
-
-    fun onSwitchCameraClicked() {
-        // Switches between front and rear cameras.
-        mRtcEngine!!.switchCamera()
-    }
-
-    fun onEncCallClicked() {
-        this.findNavController().navigate(
-            ClassroomFragmentDirections.actionClassroomFragmentToMainFragment()
-        )
-    }
 
     private fun initializeAgoraEngine() {
         try {
@@ -286,46 +317,69 @@ class ClassroomFragment : Fragment() {
     }
 
     private fun setupRemoteVideo(uid: Int) {
-        // Only one remote video view is available for this
-        // tutorial. Here we check if there exists a surface
-        // view tagged as this uid.
-        val container = binding.remoteViewViewContainer
+        CoroutineScope(Dispatchers.Main).launch {
+            // Only one remote video view is available for this
+            // tutorial. Here we check if there exists a surface
+            // view tagged as this uid.
+            val container = binding.remoteViewViewContainer
 
-        if (container.childCount >= 1) {
-            return
-        }
+            if (container.childCount >= 1) {
+                return@launch
+            }
 
-        /*
+            /*
           Creates the video renderer view.
           CreateRendererView returns the SurfaceView type. The operation and layout of the view
           are managed by the app, and the Agora SDK renders the view provided by the app.
           The video display view must be created using this method instead of directly
           calling SurfaceView.
          */
-        val surfaceView = RtcEngine.CreateRendererView(this.context)
-        container.addView(surfaceView)
-        // Initializes the video view of a remote user.
-        mRtcEngine!!.setupRemoteVideo(VideoCanvas(surfaceView, VideoCanvas.RENDER_MODE_FIT, uid))
-        surfaceView.tag = uid // for mark purpose
+            val surfaceView = RtcEngine.CreateRendererView(context)
+            container.addView(surfaceView)
+            // Initializes the video view of a remote user.
+            mRtcEngine!!.setupRemoteVideo(
+                VideoCanvas(
+                    surfaceView,
+                    VideoCanvas.RENDER_MODE_FIT,
+                    uid
+                )
+            )
+            surfaceView.tag = uid // for mark purpose
+
+            viewModel.remoteUserJoined()
+        }
     }
 
     private fun leaveChannel() {
         mRtcEngine?.leaveChannel()
     }
 
-    private fun onRemoteUserLeft() {
-        val container = binding.remoteViewViewContainer
-        container.removeAllViews()
+    private fun onRemoteUserLeft(uid: Int) {
+        CoroutineScope(Dispatchers.Main).launch {
+            val container = binding.remoteViewViewContainer
+            val remoteSurfaceView = container.getChildAt(0) as SurfaceView
+            if(remoteSurfaceView.tag == uid) {
+                container.removeAllViews()
+
+                viewModel.remoteUserLeft()
+
+                showLongToast(getString(R.string.user_left))
+            }
+        }
     }
 
     private fun onRemoteUserVideoMuted(uid: Int, muted: Boolean) {
-        val container = binding.remoteViewViewContainer
+        CoroutineScope(Dispatchers.Main).launch {
+            val container = binding.remoteViewViewContainer
 
-        val surfaceView = container.getChildAt(0) as SurfaceView
+            val surfaceView = container.getChildAt(0) as SurfaceView
 
-        val tag = surfaceView.tag
-        if (tag != null && tag as Int == uid) {
-            surfaceView.visibility = if (muted) View.GONE else View.VISIBLE
+            val tag = surfaceView.tag
+            if (tag != null && tag as Int == uid) {
+                surfaceView.visibility = if (muted) View.GONE else View.VISIBLE
+            }
+
+            viewModel.remoteVideoPaused(muted)
         }
     }
 

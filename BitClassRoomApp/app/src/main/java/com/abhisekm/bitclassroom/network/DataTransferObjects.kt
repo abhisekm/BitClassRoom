@@ -44,3 +44,4 @@ fun List<NetworkLesson>.asDatabaseModel() : Array<DatabaseLesson> {
         )
     }.toTypedArray()
 }
+

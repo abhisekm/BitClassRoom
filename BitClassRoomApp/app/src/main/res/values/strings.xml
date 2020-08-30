@@ -8,4 +8,7 @@
 
     <string name="private_app_id">85b51b1e12a54ecca3e059d833f5de78</string>
     <string name="agora_access_token"></string>
+    <string name="video_paused">Video Paused</string>
+    <string name="waiting_for_others_to_connect">Waiting for others to connect</string>
+    <string name="user_left">User left the room</string>
 </resources>

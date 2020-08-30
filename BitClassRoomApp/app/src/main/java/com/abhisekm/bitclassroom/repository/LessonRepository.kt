@@ -1,6 +1,5 @@
 package com.abhisekm.bitclassroom.repository
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
@@ -21,20 +20,22 @@ class LessonRepository(private val database: LessonsDatabase) {
             it.asDomainModel()
         }
 
-    private val _lesson = MutableLiveData<Lesson>()
+    private var _lesson = MutableLiveData<Lesson>()
 
     val lesson: LiveData<Lesson>
         get() = _lesson
+
 
     /**
      * Refresh the lessons stored in the offline cache.
      */
     suspend fun refreshVideos() {
         withContext(Dispatchers.IO) {
-            val lessons = Network.service.getLessons().await()
+            val lessons = Network.service.getLessons()
             database.lessonDao.insertAll(*lessons.asDatabaseModel())
         }
     }
+
 
     suspend fun getLesson(id: String) {
         withContext(Dispatchers.IO) {
@@ -45,4 +46,6 @@ class LessonRepository(private val database: LessonsDatabase) {
             }
         }
     }
+
+
 }

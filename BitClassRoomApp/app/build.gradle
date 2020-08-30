@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId "com.abhisekm.bitclassroom"
-        minSdkVersion 19
+        minSdkVersion 21
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
@@ -80,7 +80,6 @@ dependencies {
     // Retrofit with Moshi Converter
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
     implementation "com.squareup.retrofit2:converter-moshi:$retrofit_version"
-    implementation "com.jakewharton.retrofit:retrofit2-kotlin-coroutines-adapter:$retrofit_coroutines_adapter_version"
 
     // Agora SDK
     implementation 'io.agora.rtc:full-sdk:3.0.0'

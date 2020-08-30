@@ -21,8 +21,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val database = getDatabase(application)
     private val lessonRepository = LessonRepository(database)
 
-
-
     val lessons = lessonRepository.lessons
 
     init {
@@ -31,7 +29,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 lessonRepository.refreshVideos()
             } catch (networkError: IOException) {
                 // Show a Toast error message and hide the progress bar.
-                if(lessons.value.isNullOrEmpty())
+                if (lessons.value.isNullOrEmpty())
                     _eventNetworkError.value = Event(true)
             }
         }

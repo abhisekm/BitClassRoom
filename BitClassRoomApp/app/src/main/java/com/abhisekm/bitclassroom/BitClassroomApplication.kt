@@ -1,6 +1,5 @@
 package com.abhisekm.bitclassroom
 
-import android.app.Application
 import androidx.multidex.MultiDexApplication
 
 class BitClassroomApplication : MultiDexApplication(){

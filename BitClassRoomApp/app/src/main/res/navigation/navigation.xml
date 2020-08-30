@@ -17,14 +17,17 @@
     <fragment
         android:id="@+id/classroomFragment"
         android:name="com.abhisekm.bitclassroom.ui.classroom.view.ClassroomFragment"
-        android:label="fragment_classroom"
-        tools:layout="@layout/fragment_classroom" >
+        android:label="{title}"
+        tools:layout="@layout/fragment_classroom">
         <action
             android:id="@+id/action_classroomFragment_to_mainFragment"
             app:destination="@id/mainFragment"
             app:popUpTo="@id/mainFragment" />
         <argument
             android:name="classroomId"
+            app:argType="string" />
+        <argument
+            android:name="title"
             app:argType="string" />
     </fragment>
 </navigation>

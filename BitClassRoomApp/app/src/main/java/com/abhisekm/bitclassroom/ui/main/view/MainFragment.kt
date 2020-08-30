@@ -42,7 +42,7 @@ class MainFragment : Fragment() {
         viewModel.navigateToDatabaseLesson.observe(viewLifecycleOwner, Observer {
             it.getContentIfNotHandled()?.let {lesson ->
                 this.findNavController().navigate(
-                    MainFragmentDirections.actionMainFragmentToClassroomFragment(lesson.id)
+                    MainFragmentDirections.actionMainFragmentToClassroomFragment(lesson.id, lesson.heading)
                 )
             }
         })
