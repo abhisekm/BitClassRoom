@@ -26,5 +26,5 @@ Here are few of the assumptions I made on the Mock Api
 I am displaying the code, heading and start time for each lesson.
 
 ## Agora SDK
-I have implemented local audio, video toggle along with switch camera. They are controlled bythe bottom 4 buttons <br><br>
+I have implemented local audio, video toggle along with switch camera. They are controlled by the bottom 4 buttons <br><br>
 I have also implemeted remote video and audio toggle too. These are controlled by the top left two buttons
