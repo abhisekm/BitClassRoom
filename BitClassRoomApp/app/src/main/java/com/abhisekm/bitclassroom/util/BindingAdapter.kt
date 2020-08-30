@@ -1,10 +1,11 @@
-package com.abhisekm.bitclassroom
+package com.abhisekm.bitclassroom.util
 
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.abhisekm.bitclassroom.R
 import com.abhisekm.bitclassroom.domain.Lesson
 import com.abhisekm.bitclassroom.ui.main.adapter.LessonsAdapter
 import com.abhisekm.bitclassroom.ui.main.viewmodel.ApiStatus
@@ -47,3 +48,9 @@ fun bindApiStatus(imageView: ImageView, status: ApiStatus) {
         }
     }
 }
+
+@BindingAdapter("localAudioEnabled")
+fun bindApiStatus(imageView: ImageView, status: Boolean) {
+
+}
+

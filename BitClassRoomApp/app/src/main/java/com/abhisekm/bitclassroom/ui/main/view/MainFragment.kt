@@ -39,18 +39,19 @@ class MainFragment : Fragment() {
             viewModel.joinClassroom(it)
         })
 
-        viewModel.navigateToDatabaseLesson.observe(viewLifecycleOwner, Observer { classroom ->
-            classroom?.let {
+        viewModel.navigateToDatabaseLesson.observe(viewLifecycleOwner, Observer {
+            it.getContentIfNotHandled()?.let {lesson ->
                 this.findNavController().navigate(
-                    MainFragmentDirections.actionMainFragmentToClassroomFragment(it.id)
+                    MainFragmentDirections.actionMainFragmentToClassroomFragment(lesson.id)
                 )
-                viewModel.doneNavigating()
             }
         })
 
         // Observer for the network error.
-        viewModel.eventNetworkError.observe(viewLifecycleOwner, Observer<Boolean> { isNetworkError ->
-            if (isNetworkError) onNetworkError()
+        viewModel.eventNetworkError.observe(viewLifecycleOwner, Observer {
+            it.getContentIfNotHandled()?.let {networkError ->
+              if (networkError) onNetworkError()
+            }
         })
 
         return binding.root
@@ -60,10 +61,7 @@ class MainFragment : Fragment() {
      * Method for displaying a Toast error message for network errors.
      */
     private fun onNetworkError() {
-        if(!viewModel.isNetworkErrorShown.value!!) {
             Toast.makeText(activity, "Network Error", Toast.LENGTH_LONG).show()
-            viewModel.onNetworkErrorShown()
-        }
     }
 
 

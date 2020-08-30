@@ -5,6 +5,7 @@ import androidx.lifecycle.*
 import com.abhisekm.bitclassroom.database.getDatabase
 import com.abhisekm.bitclassroom.domain.Lesson
 import com.abhisekm.bitclassroom.repository.LessonRepository
+import com.abhisekm.bitclassroom.util.Event
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -28,49 +29,32 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             try {
                 lessonRepository.refreshVideos()
-                _eventNetworkError.value = false
-                _isNetworkErrorShown.value = false
-
             } catch (networkError: IOException) {
                 // Show a Toast error message and hide the progress bar.
                 if(lessons.value.isNullOrEmpty())
-                    _eventNetworkError.value = true
+                    _eventNetworkError.value = Event(true)
             }
         }
     }
 
-    private var _eventNetworkError = MutableLiveData<Boolean>(false)
+    private var _eventNetworkError = MutableLiveData<Event<Boolean>>()
 
-    val eventNetworkError: LiveData<Boolean>
+    val eventNetworkError: LiveData<Event<Boolean>>
         get() = _eventNetworkError
 
-
-    private var _isNetworkErrorShown = MutableLiveData<Boolean>(false)
-
-    val isNetworkErrorShown: LiveData<Boolean>
-        get() = _isNetworkErrorShown
-
-
-    fun onNetworkErrorShown() {
-        _isNetworkErrorShown.value = true
-    }
 
     override fun onCleared() {
         super.onCleared()
         viewModelJob.cancel()
     }
 
-    private val _navigateToClassroom = MutableLiveData<Lesson>()
+    private val _navigateToClassroom = MutableLiveData<Event<Lesson>>()
 
-    val navigateToDatabaseLesson: LiveData<Lesson>
+    val navigateToDatabaseLesson: LiveData<Event<Lesson>>
         get() = _navigateToClassroom
 
-    fun doneNavigating() {
-        _navigateToClassroom.value = null
-    }
-
     fun joinClassroom(lesson: Lesson) {
-        _navigateToClassroom.value = lesson
+        _navigateToClassroom.value = Event(lesson)
     }
 
     class Factory(val app: Application) : ViewModelProvider.Factory {

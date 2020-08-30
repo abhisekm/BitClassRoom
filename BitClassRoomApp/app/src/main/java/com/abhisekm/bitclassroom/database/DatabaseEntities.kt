@@ -24,6 +24,17 @@ data class DatabaseLesson(
     var endTime: Long,
 )
 
+fun DatabaseLesson.asDomainModel(): Lesson {
+    return Lesson(
+        id,
+        createdAt,
+        code,
+        heading,
+        startTime,
+        endTime
+    )
+}
+
 fun List<DatabaseLesson>.asDomainModel(): List<Lesson> {
     return map {
         Lesson(

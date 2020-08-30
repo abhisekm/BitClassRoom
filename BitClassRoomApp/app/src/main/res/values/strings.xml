@@ -5,4 +5,7 @@
     <string name="join">Join</string>
     <string name="start_time">Starting from %s</string>
     <string name="code_format">[ %s ]</string>
+
+    <string name="private_app_id">85b51b1e12a54ecca3e059d833f5de78</string>
+    <string name="agora_access_token"></string>
 </resources>

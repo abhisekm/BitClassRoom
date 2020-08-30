@@ -9,6 +9,9 @@ interface LessonDao {
     @Query("select * from lessons_table")
     fun getLessons(): LiveData<List<DatabaseLesson>>
 
+    @Query("select * from lessons_table where id = :id")
+    fun getLesson(id: String): DatabaseLesson
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(vararg lessons: DatabaseLesson)
 }

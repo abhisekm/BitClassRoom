@@ -16,7 +16,7 @@
     </fragment>
     <fragment
         android:id="@+id/classroomFragment"
-        android:name="com.abhisekm.bitclassroom.ui.classroom.ClassroomFragment"
+        android:name="com.abhisekm.bitclassroom.ui.classroom.view.ClassroomFragment"
         android:label="fragment_classroom"
         tools:layout="@layout/fragment_classroom" >
         <action

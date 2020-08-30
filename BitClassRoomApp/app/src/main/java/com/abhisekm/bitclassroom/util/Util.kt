@@ -1,4 +1,4 @@
-package com.abhisekm.bitclassroom
+package com.abhisekm.bitclassroom.util
 
 import android.annotation.SuppressLint
 import java.text.SimpleDateFormat

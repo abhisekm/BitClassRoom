@@ -1,9 +1,10 @@
-package com.abhisekm.bitclassroom
+package com.abhisekm.bitclassroom.ui
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.navigation.findNavController
 import androidx.navigation.ui.NavigationUI
+import com.abhisekm.bitclassroom.R
 
 class MainActivity : AppCompatActivity() {
 
